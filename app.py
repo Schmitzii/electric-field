@@ -51,20 +51,28 @@ def onClick_inputField(event):
         else:
             q = canvas.create_circle(x, y, c.DEFAULT_CIRCLE_RADIUS, fill="red")
             coords = canvas.coords(q)
+            canvas.tag_bind(q, "<Button-1>", onClick_charge)
             # add new charge to charges array by calculating center coordinates of circle
             h.charges.append(
                 h.Charge(
-                    1, [(coords[0] + coords[2]) / 2, (coords[1] + coords[3]) / 2], q
+                    1, [(coords[0] + coords[2]) / 2,
+                        (coords[1] + coords[3]) / 2], q
                 )
             )
             print(h.charges[-1].__dict__)  # print out object attributes
-    elif not add_charge and not remove_charge:
-        for q in h.charges:  # loop through to charges to check if item was clicked
-            coords = canvas.coords(q[2])
-            if (
-                coords[0] < x < coords[2] and coords[1] < y < coords[3]
-            ):  # check if mouse click was inside the item
-                pass
+    else:  # when man auf ein item innerhalb eines canvas klickt funktioniert onClick_inputField nicht
+        pass
+
+
+def onClick_charge(event):
+    x, y = event.x, event.y
+    q = event.widget.find_closest(x, y)
+    if remove_charge:
+        for charge in h.charges:
+            # check if charge in array has same coordinates as clicked charge
+            if canvas.coords(charge.item) == canvas.coords(q):
+                canvas.delete(q)
+                h.charges.remove(charge)
 
 
 """HIER WEITER MACHEN(KREIS HINZUFÜGEN UND GRÖßEN-TOGGLER)"""
@@ -112,7 +120,8 @@ removecharge_button = tk.Button(
     width=c.BUTTON_WIDTH,
     command=onClick_removeCharge,
 )
-efield_button = tk.Button(buttons_f, text="Elektrisches Feld", width=c.BUTTON_WIDTH)
+efield_button = tk.Button(
+    buttons_f, text="Elektrisches Feld", width=c.BUTTON_WIDTH)
 cursor_button.grid(row=0, column=0)
 addcharge_button.grid(row=0, column=1)
 removecharge_button.grid(row=0, column=2)
@@ -120,7 +129,8 @@ efield_button.grid(row=0, column=3)
 
 # Input Field
 canvas = tk.Canvas(plot_f, width=c.PLOT_SIZE, height=c.PLOT_SIZE)
-input_field = canvas.create_rectangle(0, 0, c.PLOT_SIZE, c.PLOT_SIZE, fill="white")
+input_field = canvas.create_rectangle(
+    0, 0, c.PLOT_SIZE, c.PLOT_SIZE, fill="white")
 canvas.tag_bind(input_field, "<Button-1>", onClick_inputField)
 
 buttons_f.grid(column=0, row=0)
