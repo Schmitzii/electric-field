@@ -2,13 +2,15 @@ import constants as c
 import helpers as h
 import tkinter as tk
 
-# messagebox does not get imported automatically, so import it explicitly
+# does not get imported automatically, so import it explicitly
 from tkinter import messagebox
+from tkinter import ttk
 
 
 """BUTTON FUCTIONS"""
 add_charge = False
 remove_charge = False
+counter = 0  # counts the number of charges
 
 # apply method to create circle to tk.Canvas
 tk.Canvas.create_circle = h._create_circle
@@ -41,7 +43,9 @@ def onClick_removeCharge():
 
 
 def onClick_inputField(event):
+    global counter
     x, y = event.x, event.y  # mouse click position
+
     if add_charge:
         if len(h.charges) > 9:
             messagebox.showerror(
@@ -56,16 +60,23 @@ def onClick_inputField(event):
             h.charges.append(
                 h.Charge(
                     1, [(coords[0] + coords[2]) / 2,
-                        (coords[1] + coords[3]) / 2], q
+                        (coords[1] + coords[3]) / 2], q, None
                 )
             )
+            record = table.insert(parent="", index="end", iid=counter, text="", values=(
+                h.charges[-1].pos, h.charges[-1].q))  # [-1] takes the last element of an array
+            # add table record to object to be able to delete it
+            h.charges[-1].record = record
+            counter += 1
             print(h.charges[-1].__dict__)  # print out object attributes
-    else:  # when man auf ein item innerhalb eines canvas klickt funktioniert onClick_inputField nicht
+    else:
         pass
 
 
 def onClick_charge(event):
-    x, y = event.x, event.y
+    global counter
+    x, y = event.x, event.y  # mouse click position
+
     q = event.widget.find_closest(x, y)
     if remove_charge:
         for charge in h.charges:
@@ -73,13 +84,27 @@ def onClick_charge(event):
             if canvas.coords(charge.item) == canvas.coords(q):
                 canvas.delete(q)
                 h.charges.remove(charge)
+                table.delete(charge.record)
+
+
+def update_record():
+    # Grab record number
+    selected = table.focus()
+    # Save new data
+    table.item(selected, text="", values=(
+        name_box.get(), id_box.get(), topping_box.get()))
+
+    # Clear entry boxes
+    name_box.delete(0, END)
+    id_box.delete(0, END)
+    topping_box.delete(0, END)
 
 
 """HIER WEITER MACHEN(KREIS HINZUFÜGEN UND GRÖßEN-TOGGLER)"""
 
 
 """ROOT"""
-root = tk.Tk()  # initialise root element
+root = tk.Tk()  # initialise root element #vielleicht App-Klasse erstellen und Funktionen für bessere Lesbarkeit außerhalb definieren
 root.title("Visualisierung elektrischer Feldlinien")  # set title
 root.geometry("1200x800")  # set window size
 
@@ -104,6 +129,7 @@ window_f = tk.LabelFrame(
     root, text="Visualisierung elektrischer Feldlinien", padx=10, pady=10
 )
 window_f.pack(padx=10, pady=10)  # add padding to inside of frame
+
 
 """PLOT"""
 plot_f = tk.Frame(window_f)
@@ -137,7 +163,21 @@ buttons_f.grid(column=0, row=0)
 canvas.grid(column=0, row=1)
 
 window_f.pack()
-plot_f.pack()
+plot_f.grid(row=0, column=0)
+
+"""TABLE"""
+table = ttk.Treeview(window_f, height=29)
+table['columns'] = ('position', 'charge')
+
+table.column("#0", width=0, stretch=tk.NO)
+table.column("position", anchor=tk.CENTER, width=80)
+table.column("charge", anchor=tk.CENTER, width=80)
+
+table.heading("#0", text="", anchor=tk.CENTER)
+table.heading("position", text="Position", anchor=tk.CENTER)
+table.heading("charge", text="Ladung", anchor=tk.CENTER)
+
+table.grid(row=0, column=1)
 
 
 root.mainloop()

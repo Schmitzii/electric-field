@@ -4,10 +4,11 @@ charges = []
 
 
 class Charge:
-    def __init__(self, q, pos, item):
-        self.q = q
-        self.pos = pos
-        self.item = item
+    def __init__(self, q, pos, item, record):
+        self.q = q  # charge
+        self.pos = pos  # position
+        self.item = item  # item in canvas
+        self.record = record  # record in table
 
 
 def _create_circle(self, x, y, r, **kwargs):  # x=xCoordinate, y=yCoordinate, r=radius
