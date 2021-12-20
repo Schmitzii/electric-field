@@ -4,6 +4,7 @@ import tkinter as tk
 
 # does not get imported automatically, so import it explicitly
 from tkinter import messagebox
+from tkinter import simpledialog
 from tkinter import ttk
 
 
@@ -87,20 +88,12 @@ def onClick_charge(event):
                 table.delete(charge.record)
 
 
-def update_record():
-    # Grab record number
-    selected = table.focus()
-    # Save new data
-    table.item(selected, text="", values=(
-        name_box.get(), id_box.get(), topping_box.get()))
-
-    # Clear entry boxes
-    name_box.delete(0, END)
-    id_box.delete(0, END)
-    topping_box.delete(0, END)
-
-
-"""HIER WEITER MACHEN(KREIS HINZUFÜGEN UND GRÖßEN-TOGGLER)"""
+def select_item():  # hier weiter machen, rest müssen funktionieren(PopUp-Fenster öffnet sich automatisch)
+    curItem = table.focus()
+    user_inp = simpledialog.askfloat(  # führt automatisch aus
+        "Änderung der Ladung", "Neuer Wert:", minvalue=-10.0, maxvalue=10.0)
+    # keine Möglichkeit um value des items abzurufen
+    table.item(curItem, values=(curItem[0], user_inp))
 
 
 """ROOT"""
@@ -178,6 +171,8 @@ table.heading("position", text="Position", anchor=tk.CENTER)
 table.heading("charge", text="Ladung", anchor=tk.CENTER)
 
 table.grid(row=0, column=1)
+
+table.bind('<Button-1>', select_item)
 
 
 root.mainloop()
