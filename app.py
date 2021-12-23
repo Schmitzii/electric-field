@@ -8,173 +8,188 @@ from tkinter import simpledialog
 from tkinter import ttk
 
 
-"""BUTTON FUCTIONS"""
-add_charge = False
-remove_charge = False
-counter = 0  # counts the number of charges
-
 # apply method to create circle to tk.Canvas
 tk.Canvas.create_circle = h._create_circle
 
 
-def onClick_addCharge():
-    global add_charge, remove_charge
-    remove_charge = False
+class App():
+    def __init__(self, parent):
+        """VARIABLES"""
+        self.add_charge = False
+        self.remove_charge = False
+        self.counter = 0  # counts the number of charges
 
-    if add_charge:
-        add_charge = False
-        addcharge_button.config(relief=tk.RAISED)
-    else:
-        add_charge = True
-        addcharge_button.config(relief=tk.SUNKEN)
-        removecharge_button.config(relief=tk.RAISED)
+        """ROOT"""
+        self.parent = parent
+        self.parent.geometry("1200x800")
+        self.parent.title("Visualisierung elektrischer Feldlinien")
 
+        self.parent.title(
+            "Visualisierung elektrischer Feldlinien")  # set title
+        self.parent.geometry("1200x800")  # set window size
 
-def onClick_removeCharge():
-    global add_charge, remove_charge
-    add_charge = False
+        """MENU"""
+        self.menubar = tk.Menu(self.parent)  # initialise menubar
 
-    if remove_charge:
-        remove_charge = False
-        removecharge_button.config(relief=tk.RAISED)
-    else:
-        remove_charge = True
-        removecharge_button.config(relief=tk.SUNKEN)
-        addcharge_button.config(relief=tk.RAISED)
+        self.optionsmenu = tk.Menu(self.menubar)
+        self.optionsmenu.add_command(label="Einstellungen löschen")
+        self.optionsmenu.add_command(
+            label="Schließen", command=self.parent.quit)
 
+        self.viewmenu = tk.Menu(self.menubar)
+        self.viewmenu.add_command(label="Einstellungen")
+        self.viewmenu.add_command(label="Darstellung")
 
-def onClick_inputField(event):
-    global counter
-    x, y = event.x, event.y  # mouse click position
+        self.menubar.add_cascade(label="Optionen", menu=self.optionsmenu)
+        self.menubar.add_cascade(label="Ansicht", menu=self.viewmenu)
 
-    if add_charge:
-        if len(h.charges) > 9:
-            messagebox.showerror(
-                title="Zu viele Ladungen",
-                message="Es können maximal 10 Ladungen eingefügt werden.",
-            )
+        self.parent.config(menu=self.menubar, bg=c.BACKGROUND_COLOR)
+
+        """WINDOW"""
+        self.window_f = tk.LabelFrame(
+            self.parent, text="Visualisierung elektrischer Feldlinien", padx=10, pady=10
+        )
+        self.window_f.pack(padx=10, pady=10)  # add padding to inside of frame
+
+        """PLOT"""
+        self.plot_f = tk.Frame(self.window_f)
+        self.buttons_f = tk.Frame(self.plot_f)
+
+        # Buttons
+        self.cursor_button = tk.Button(
+            self.buttons_f, text="Cursor", width=c.BUTTON_WIDTH)
+        self.addcharge_button = tk.Button(
+            self.buttons_f, text="Ladung hinzufügen", width=c.BUTTON_WIDTH, command=self.onClick_addCharge
+        )
+        self.removecharge_button = tk.Button(
+            self.buttons_f,
+            text="Ladung entfernen",
+            width=c.BUTTON_WIDTH,
+            command=self.onClick_removeCharge,
+        )
+        self.efield_button = tk.Button(
+            self.buttons_f, text="Elektrisches Feld", width=c.BUTTON_WIDTH)
+        self.cursor_button.grid(row=0, column=0)
+        self.addcharge_button.grid(row=0, column=1)
+        self.removecharge_button.grid(row=0, column=2)
+        self.efield_button.grid(row=0, column=3)
+
+        # Input Field
+        self.canvas = tk.Canvas(
+            self.plot_f, width=c.PLOT_SIZE, height=c.PLOT_SIZE)
+        self.input_field = self.canvas.create_rectangle(
+            0, 0, c.PLOT_SIZE, c.PLOT_SIZE, fill="white")
+        self.canvas.tag_bind(
+            self.input_field, "<Button-1>", self.onClick_inputField)
+
+        self.buttons_f.grid(column=0, row=0)
+        self.canvas.grid(column=0, row=1)
+
+        self.window_f.pack()
+        self.plot_f.grid(row=0, column=0)
+
+        """TABLE"""
+        self.table = ttk.Treeview(self.window_f, height=29)
+        self.table['columns'] = ('position', 'charge')
+
+        self.table.column("#0", width=0, stretch=tk.NO)
+        self.table.column("position", anchor=tk.CENTER, width=80)
+        self.table.column("charge", anchor=tk.CENTER, width=80)
+
+        self.table.heading("#0", text="", anchor=tk.CENTER)
+        self.table.heading("position", text="Position", anchor=tk.CENTER)
+        self.table.heading("charge", text="Ladung", anchor=tk.CENTER)
+
+        self.table.grid(row=0, column=1)
+
+        self.table.bind('<Double-Button-1>', self.select_item)
+
+    """BUTTON FUCTIONS"""
+
+    def onClick_addCharge(self):
+        self.remove_charge = False
+
+        if self.add_charge:
+            self.add_charge = False
+            self.addcharge_button.config(relief=tk.RAISED)
         else:
-            q = canvas.create_circle(x, y, c.DEFAULT_CIRCLE_RADIUS, fill="red")
-            coords = canvas.coords(q)
-            canvas.tag_bind(q, "<Button-1>", onClick_charge)
-            # add new charge to charges array by calculating center coordinates of circle
-            h.charges.append(
-                h.Charge(
-                    1, [(coords[0] + coords[2]) / 2,
-                        (coords[1] + coords[3]) / 2], q, None
+            self.add_charge = True
+            self.addcharge_button.config(relief=tk.SUNKEN)
+            self.removecharge_button.config(relief=tk.RAISED)
+
+    def onClick_removeCharge(self):
+        self.add_charge = False
+
+        if self.remove_charge:
+            self.remove_charge = False
+            self.removecharge_button.config(relief=tk.RAISED)
+        else:
+            self.remove_charge = True
+            self.removecharge_button.config(relief=tk.SUNKEN)
+            self.addcharge_button.config(relief=tk.RAISED)
+
+    def onClick_inputField(self, event):
+        x, y = event.x, event.y  # mouse click position
+
+        if self.add_charge:
+            print("TEST")
+            if len(h.charges) > 9:
+                messagebox.showerror(
+                    title="Zu viele Ladungen",
+                    message="Es können maximal 10 Ladungen eingefügt werden.",
                 )
-            )
-            record = table.insert(parent="", index="end", iid=counter, text="", values=(
-                h.charges[-1].pos, h.charges[-1].q))  # [-1] takes the last element of an array
-            # add table record to object to be able to delete it
-            h.charges[-1].record = record
-            counter += 1
-            print(h.charges[-1].__dict__)  # print out object attributes
-    else:
-        pass
+            else:
+                q = self.canvas.create_circle(
+                    x, y, c.DEFAULT_CIRCLE_RADIUS, fill="red")
+                coords = self.canvas.coords(q)
+                self.canvas.tag_bind(q, "<Button-1>", self.onClick_charge)
+                # add new charge to charges array by calculating center coordinates of circle
+                h.charges.append(
+                    h.Charge(
+                        1.0, [(coords[0] + coords[2]) / 2,
+                              (coords[1] + coords[3]) / 2], q, None
+                    )
+                )
+                record = self.table.insert(parent="", index="end", iid=self.counter, text="", values=(
+                    h.charges[-1].pos, h.charges[-1].q))  # [-1] takes the last element of an array
+                # add table record to object to be able to delete it
+                h.charges[-1].record = record
+                self.counter += 1
+                # print out object attributes
+                print(h.charges[-1].__dict__)
+        else:
+            pass
+
+    def onClick_charge(self, event):
+        global counter
+        x, y = event.x, event.y  # mouse click position
+
+        q = event.widget.find_closest(x, y)
+        if self.remove_charge:
+            for charge in h.charges:
+                # check if charge in array has same coordinates as clicked charge
+                if self.canvas.coords(charge.item) == self.canvas.coords(q):
+                    self.canvas.delete(q)
+                    h.charges.remove(charge)
+                    self.table.delete(charge.record)
+
+    def select_item(self, a):  # argument a not used but is necessary
+        curItem = self.table.focus()
+        values = self.table.item(curItem, 'values')
+        user_inp = simpledialog.askfloat(
+            "Änderung der Ladung", "Neuer Wert:", minvalue=-10.0, maxvalue=10.0)
+        if user_inp is not None:
+            self.table.item(curItem, values=(values[0], user_inp))
+            for idx, charge in enumerate(h.charges):
+                # check if record of charge equals focused record
+                if curItem == charge.record:
+                    h.charges[idx].q = user_inp
+                    print(h.charges[idx].q)
+
+        #self.table.insert("", str(curItem)[1:], values=("", str(x)))
+        # self.table.delete(curItem)
 
 
-def onClick_charge(event):
-    global counter
-    x, y = event.x, event.y  # mouse click position
-
-    q = event.widget.find_closest(x, y)
-    if remove_charge:
-        for charge in h.charges:
-            # check if charge in array has same coordinates as clicked charge
-            if canvas.coords(charge.item) == canvas.coords(q):
-                canvas.delete(q)
-                h.charges.remove(charge)
-                table.delete(charge.record)
-
-# app muss vielleicht in klasse umgewandelt werden, damit select_item funktioniert
-
-
-def select_item():  # hier weiter machen, rest müssen funktionieren(PopUp-Fenster öffnet sich automatisch)
-    curItem = table.focus()
-    user_inp = simpledialog.askfloat(  # führt automatisch aus
-        "Änderung der Ladung", "Neuer Wert:", minvalue=-10.0, maxvalue=10.0)
-    # keine Möglichkeit um value des items abzurufen
-    table.item(curItem, values=(curItem[0], user_inp))
-
-
-"""ROOT"""
 root = tk.Tk()  # initialise root element #vielleicht App-Klasse erstellen und Funktionen für bessere Lesbarkeit außerhalb definieren
-root.title("Visualisierung elektrischer Feldlinien")  # set title
-root.geometry("1200x800")  # set window size
-
-"""MENU"""
-menubar = tk.Menu(root)  # initialise menubar
-
-optionsmenu = tk.Menu(menubar)
-optionsmenu.add_command(label="Einstellungen löschen")
-optionsmenu.add_command(label="Schließen", command=root.quit)
-
-viewmenu = tk.Menu(menubar)
-viewmenu.add_command(label="Einstellungen")
-viewmenu.add_command(label="Darstellung")
-
-menubar.add_cascade(label="Optionen", menu=optionsmenu)
-menubar.add_cascade(label="Ansicht", menu=viewmenu)
-
-root.config(menu=menubar, bg=c.BACKGROUND_COLOR)
-
-"""WINDOW"""
-window_f = tk.LabelFrame(
-    root, text="Visualisierung elektrischer Feldlinien", padx=10, pady=10
-)
-window_f.pack(padx=10, pady=10)  # add padding to inside of frame
-
-
-"""PLOT"""
-plot_f = tk.Frame(window_f)
-buttons_f = tk.Frame(plot_f)
-
-# Buttons
-cursor_button = tk.Button(buttons_f, text="Cursor", width=c.BUTTON_WIDTH)
-addcharge_button = tk.Button(
-    buttons_f, text="Ladung hinzufügen", width=c.BUTTON_WIDTH, command=onClick_addCharge
-)
-removecharge_button = tk.Button(
-    buttons_f,
-    text="Ladung entfernen",
-    width=c.BUTTON_WIDTH,
-    command=onClick_removeCharge,
-)
-efield_button = tk.Button(
-    buttons_f, text="Elektrisches Feld", width=c.BUTTON_WIDTH)
-cursor_button.grid(row=0, column=0)
-addcharge_button.grid(row=0, column=1)
-removecharge_button.grid(row=0, column=2)
-efield_button.grid(row=0, column=3)
-
-# Input Field
-canvas = tk.Canvas(plot_f, width=c.PLOT_SIZE, height=c.PLOT_SIZE)
-input_field = canvas.create_rectangle(
-    0, 0, c.PLOT_SIZE, c.PLOT_SIZE, fill="white")
-canvas.tag_bind(input_field, "<Button-1>", onClick_inputField)
-
-buttons_f.grid(column=0, row=0)
-canvas.grid(column=0, row=1)
-
-window_f.pack()
-plot_f.grid(row=0, column=0)
-
-"""TABLE"""
-table = ttk.Treeview(window_f, height=29)
-table['columns'] = ('position', 'charge')
-
-table.column("#0", width=0, stretch=tk.NO)
-table.column("position", anchor=tk.CENTER, width=80)
-table.column("charge", anchor=tk.CENTER, width=80)
-
-table.heading("#0", text="", anchor=tk.CENTER)
-table.heading("position", text="Position", anchor=tk.CENTER)
-table.heading("charge", text="Ladung", anchor=tk.CENTER)
-
-table.grid(row=0, column=1)
-
-table.bind('<Button-1>', select_item)
-
-
+window = App(root)
 root.mainloop()
