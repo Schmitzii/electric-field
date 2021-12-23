@@ -87,6 +87,8 @@ def onClick_charge(event):
                 h.charges.remove(charge)
                 table.delete(charge.record)
 
+# app muss vielleicht in klasse umgewandelt werden, damit select_item funktioniert
+
 
 def select_item():  # hier weiter machen, rest müssen funktionieren(PopUp-Fenster öffnet sich automatisch)
     curItem = table.focus()
