@@ -7,7 +7,6 @@ from tkinter import messagebox
 from tkinter import simpledialog
 from tkinter import ttk
 
-
 # apply method to create circle to tk.Canvas
 tk.Canvas.create_circle = h._create_circle
 
@@ -68,7 +67,8 @@ class App():
             command=self.onClick_removeCharge,
         )
         self.efield_button = tk.Button(
-            self.buttons_f, text="Elektrisches Feld", width=c.BUTTON_WIDTH)
+            self.buttons_f, text="Elektrisches Feld", width=c.BUTTON_WIDTH, command=h.onClick_efield
+        )
         self.cursor_button.grid(row=0, column=0)
         self.addcharge_button.grid(row=0, column=1)
         self.removecharge_button.grid(row=0, column=2)
@@ -157,8 +157,6 @@ class App():
                 self.counter += 1
                 # print out object attributes
                 print(h.charges[-1].__dict__)
-        else:
-            pass
 
     def onClick_charge(self, event):
         global counter
@@ -172,6 +170,8 @@ class App():
                     self.canvas.delete(q)
                     h.charges.remove(charge)
                     self.table.delete(charge.record)
+        elif not self.remove_charge and not self.add_charge:  # select charge to change values
+            pass
 
     def select_item(self, a):  # argument a not used but is necessary
         curItem = self.table.focus()
@@ -180,16 +180,16 @@ class App():
             "Änderung der Ladung", "Neuer Wert:", minvalue=-10.0, maxvalue=10.0)
         if user_inp is not None:
             self.table.item(curItem, values=(values[0], user_inp))
-            for idx, charge in enumerate(h.charges):
+            for charge in h.charges:
                 # check if record of charge equals focused record
                 if curItem == charge.record:
-                    h.charges[idx].q = user_inp
-                    print(h.charges[idx].q)
+                    charge.q = user_inp
+                    # change color based on mathematical operator (<0:blue, =0:grey, >0:red)
+                    self.canvas.itemconfig(charge.item, fill='blue') if user_inp < 0 else self.canvas.itemconfig(
+                        charge.item, fill='grey') if user_inp == 0 else self.canvas.itemconfig(charge.item, fill='red')
+                    # PLACEHOLDER FOR CHANGING SIZE OF OVAL WHEN CHARGE GETS BIGGER OR SMALLER
 
-        #self.table.insert("", str(curItem)[1:], values=("", str(x)))
-        # self.table.delete(curItem)
 
-
-root = tk.Tk()  # initialise root element #vielleicht App-Klasse erstellen und Funktionen für bessere Lesbarkeit außerhalb definieren
+root = tk.Tk()  # initialise root element
 window = App(root)
 root.mainloop()
