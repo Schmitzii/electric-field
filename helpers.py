@@ -3,10 +3,16 @@ import copy
 import matplotlib.pyplot as plt
 import numpy as np
 import plotly.offline as py
-from scipy.integrate import ode as ode
-
+from scipy.integrate import ode as ode  # solve differential equations
 
 charges = []
+
+"""NOCH ERLEDIGEN:
+-600 durch Konstante ersetzen
+-generell neue Konstanten einführen
+-Programm lesen und verstehen (besonders helpers.py)
+-Auch Größe der Ladungen schon innerhalb des GUIs ändern, anstatt nur in matplotlib
+"""
 
 
 class Charge:
@@ -22,6 +28,8 @@ def _create_circle(self, x, y, r, **kwargs):  # x=xCoordinate, y=yCoordinate, r=
 
 
 """CALCULATION ELECTRIC FIELD LINES"""
+
+# *formula to calcuate electric field due to a single charge
 
 
 def E_point_charge(q, a, x, y):
@@ -45,14 +53,12 @@ def E_dir(t, y, temp_charges):
 
 
 def onClick_efield():
-    # copy list and copy objects as well (copy.copy() would only copy list but not objects inside the list -->charges would get changed as well)
+    # *copy list and copy objects as well (copy.copy() would only copy list but not objects inside the list -->charges would get changed as well)
     temp_charges = copy.deepcopy(charges)
+    # *define temporarily new positions for plotting charges
     for C in temp_charges:
-        C.pos[0] = C.pos[0] / 600
-        C.pos[1] = (600 - C.pos[1]) / 600
-        print(C.__dict__)
-    print(temp_charges)
-    print(charges)
+        C.pos[0] = round(C.pos[0] / 600, 2)  # round to 2 decimal places
+        C.pos[1] = round((600 - C.pos[1]) / 600, 2)
 
     # calculate field lines
     R = 0.01
@@ -67,8 +73,10 @@ def onClick_efield():
             continue
         # loop over field lines starting in different directions
         # around current charge
+        print(np.linspace(0, 2*np.pi*31/32, 32, retstep=True))
+        # the bigger the numbers the more lines
         for alpha in np.linspace(0, 2*np.pi*31/32, 32):
-            r = ode(E_dir)
+            r = ode(E_dir)  # *helps to solve differential equation
             r.set_integrator('vode')
             r.set_f_params(temp_charges)
             x = [C.pos[0] + np.cos(alpha)*R]
@@ -92,15 +100,16 @@ def onClick_efield():
                     if np.sqrt((r.y[0]-C2.pos[0])**2+(r.y[1]-C2.pos[1])**2) < R:
                         hit_charge = True
                 if hit_charge:
-                    break
+                    break  # end line
             xs.append(x)
             ys.append(y)
 
     fig = plt.figure(figsize=(7, 7), facecolor="w")
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(111)  # 1x1 grid, first subplo
 
     # plot field line
-    for x, y in zip(xs, ys):
+    for x, y in zip(xs, ys):  # *zip() aggregates lists and combines them into a tuple
+        # plot line with color k and linewidth 0.8
         ax.plot(x, y, color="k", lw=0.8)
 
     # plot point charges
@@ -118,3 +127,4 @@ def onClick_efield():
     plt.savefig('electric_field_lines_pyplot_wo_mayavi.png',
                 dpi=250, bbox_inches="tight", pad_inches=0.02)
     plt.show()
+    # py.iplot_mpl(fig)

@@ -10,6 +10,8 @@ from tkinter import ttk
 # apply method to create circle to tk.Canvas
 tk.Canvas.create_circle = h._create_circle
 
+"""PROGRAM DOESNT WORK WHEN THERE ARE MORE POSITIVE THAN NEGATIVE CHARGES"""
+
 
 class App():
     def __init__(self, parent):
