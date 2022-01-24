@@ -134,7 +134,6 @@ class App():
         x, y = event.x, event.y  # mouse click position
 
         if self.add_charge:
-            print("TEST")
             if len(h.charges) > 9:
                 messagebox.showerror(
                     title="Zu viele Ladungen",

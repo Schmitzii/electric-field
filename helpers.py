@@ -29,10 +29,12 @@ def _create_circle(self, x, y, r, **kwargs):  # x=xCoordinate, y=yCoordinate, r=
 
 """CALCULATION ELECTRIC FIELD LINES"""
 
-# *formula to calcuate electric field due to a single charge
+# *formula to calculate electric field due to a single charge
 
 
 def E_point_charge(q, a, x, y):
+    print(q*(x-a[0])/((x-a[0])**2+(y-a[1])**2)**(1.5),
+          q*(y-a[1])/((x-a[0])**2+(y-a[1])**2)**(1.5))
     return q*(x-a[0])/((x-a[0])**2+(y-a[1])**2)**(1.5), \
         q*(y-a[1])/((x-a[0])**2+(y-a[1])**2)**(1.5)
 
@@ -72,8 +74,7 @@ def onClick_efield():
             # skip the process when the current charges is negative.
             continue
         # loop over field lines starting in different directions
-        # around current charge
-        print(np.linspace(0, 2*np.pi*31/32, 32, retstep=True))
+        # around current charge #(2*pi*r)
         # the bigger the numbers the more lines
         for alpha in np.linspace(0, 2*np.pi*31/32, 32):
             r = ode(E_dir)  # *helps to solve differential equation
@@ -83,14 +84,14 @@ def onClick_efield():
             y = [C.pos[1] + np.sin(alpha)*R]
             r.set_initial_value([x[0], y[0]], 0)
             cnt = 0
-            while r.successful():
+            while r.successful():  # as long as the line doesnt end and integration is succesful
                 Enorm = E_total(r.y[0], r.y[1], temp_charges)
                 Enorm = (Enorm[0]**2 + Enorm[1]**2)**0.5
                 a = 5
                 dt = R*a*Enorm**(-0.4)
                 # if cnt % 1000 == 0:
                 #    print(r.y[0],r.y[1],Enorm,dt2)
-                #cnt += 1
+                # cnt += 1
                 r.integrate(r.t+dt)
                 x.append(r.y[0])
                 y.append(r.y[1])
@@ -101,11 +102,11 @@ def onClick_efield():
                         hit_charge = True
                 if hit_charge:
                     break  # end line
-            xs.append(x)
+            xs.append(x)  # append point list to line list which is plotted
             ys.append(y)
 
     fig = plt.figure(figsize=(7, 7), facecolor="w")
-    ax = fig.add_subplot(111)  # 1x1 grid, first subplo
+    ax = fig.add_subplot(111)  # 1x1 grid, first subplot
 
     # plot field line
     for x, y in zip(xs, ys):  # *zip() aggregates lists and combines them into a tuple
@@ -115,9 +116,11 @@ def onClick_efield():
     # plot point charges
     for C in temp_charges:
         if C.q > 0:
-            ax.plot(C.pos[0], C.pos[1], 'ro', ms=10*np.sqrt(C.q))
+            ax.plot(C.pos[0], C.pos[1], 'ro', ms=10 *
+                    np.sqrt(C.q))  # ro -> red circle markers for charges
         if C.q < 0:
-            ax.plot(C.pos[0], C.pos[1], 'bo', ms=10*np.sqrt(-C.q))
+            ax.plot(C.pos[0], C.pos[1], 'bo', ms=10 *
+                    np.sqrt(-C.q))  # bo -> blue circle markers for charges
 
     ax.set_xlabel('x')
     ax.set_ylabel('y')

@@ -1,7 +1,7 @@
 """WINDOW"""
 WINDOW_WIDTH = 1200
 WINDOW_HEIGHT = 800
-BACKGROUND_COLOR = 'seashell'
+BACKGROUND_COLOR = 'floralwhite'
 
 """PLOT"""
 PLOT_SIZE = 600  # kann auch in width und height aufgeteilt werden
