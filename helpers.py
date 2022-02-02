@@ -84,6 +84,7 @@ def onClick_efield():
             y = [C.pos[1] + np.sin(alpha)*R]
             r.set_initial_value([x[0], y[0]], 0)
             cnt = 0
+            #! MAYBE CHANGE OF MAXIMUM RANGE OF FIELD LINES WOULD MINIMIZE CALCULATING TIME
             while r.successful():  # as long as the line doesnt end and integration is succesful
                 Enorm = E_total(r.y[0], r.y[1], temp_charges)
                 Enorm = (Enorm[0]**2 + Enorm[1]**2)**0.5

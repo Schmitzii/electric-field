@@ -143,6 +143,8 @@ class App():
                 q = self.canvas.create_circle(
                     x, y, c.DEFAULT_CIRCLE_RADIUS, fill="red")
                 coords = self.canvas.coords(q)
+                for coord in coords:
+                    coord = coord / 600
                 self.canvas.tag_bind(q, "<Button-1>", self.onClick_charge)
                 # add new charge to charges array by calculating center coordinates of circle
                 h.charges.append(
