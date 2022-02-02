@@ -143,14 +143,12 @@ class App():
                 q = self.canvas.create_circle(
                     x, y, c.DEFAULT_CIRCLE_RADIUS, fill="red")
                 coords = self.canvas.coords(q)
-                for coord in coords:
-                    coord = coord / 600
                 self.canvas.tag_bind(q, "<Button-1>", self.onClick_charge)
                 # add new charge to charges array by calculating center coordinates of circle
                 h.charges.append(
                     h.Charge(
-                        1.0, [(coords[0] + coords[2]) / 2,
-                              (coords[1] + coords[3]) / 2], q, None
+                        1.0, [round((coords[0] + coords[2]) / 1200, 2),  # divided by 1200 because /2 because of average and /600 because of coordinate system
+                              round(1 - ((coords[1] + coords[3]) / 1200), 2)], q, None
                     )
                 )
                 record = self.table.insert(parent="", index="end", iid=self.counter, text="", values=(

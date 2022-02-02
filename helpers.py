@@ -39,34 +39,28 @@ def E_point_charge(q, a, x, y):
         q*(y-a[1])/((x-a[0])**2+(y-a[1])**2)**(1.5)
 
 
-def E_total(x, y, temp_charges):
+def E_total(x, y, charges):
     Ex, Ey = 0, 0
-    for C in temp_charges:
+    for C in charges:
         E = E_point_charge(C.q, C.pos, x, y)
         Ex = Ex + E[0]
         Ey = Ey + E[1]
     return [Ex, Ey]
 
 
-def E_dir(t, y, temp_charges):
-    Ex, Ey = E_total(y[0], y[1], temp_charges)
+def E_dir(t, y, charges):
+    Ex, Ey = E_total(y[0], y[1], charges)
     n = np.sqrt(Ex**2+Ey*Ey)
     return [Ex/n, Ey/n]
 
 
 def onClick_efield():
-    # *copy list and copy objects as well (copy.copy() would only copy list but not objects inside the list -->charges would get changed as well)
-    temp_charges = copy.deepcopy(charges)
-    # *define temporarily new positions for plotting charges
-    for C in temp_charges:
-        C.pos[0] = round(C.pos[0] / 600, 2)  # round to 2 decimal places
-        C.pos[1] = round((600 - C.pos[1]) / 600, 2)
 
     # calculate field lines
     R = 0.01
     # loop over all charges
     xs, ys = [], []
-    for C in temp_charges:
+    for C in charges:
         # plot field lines starting in current charge
         dt = 0.8 * R
         if C.q < 0:
@@ -79,14 +73,14 @@ def onClick_efield():
         for alpha in np.linspace(0, 2*np.pi*31/32, 32):
             r = ode(E_dir)  # *helps to solve differential equation
             r.set_integrator('vode')
-            r.set_f_params(temp_charges)
+            r.set_f_params(charges)
             x = [C.pos[0] + np.cos(alpha)*R]
             y = [C.pos[1] + np.sin(alpha)*R]
             r.set_initial_value([x[0], y[0]], 0)
             cnt = 0
             #! MAYBE CHANGE OF MAXIMUM RANGE OF FIELD LINES WOULD MINIMIZE CALCULATING TIME
             while r.successful():  # as long as the line doesnt end and integration is succesful
-                Enorm = E_total(r.y[0], r.y[1], temp_charges)
+                Enorm = E_total(r.y[0], r.y[1], charges)
                 Enorm = (Enorm[0]**2 + Enorm[1]**2)**0.5
                 a = 5
                 dt = R*a*Enorm**(-0.4)
@@ -98,7 +92,7 @@ def onClick_efield():
                 y.append(r.y[1])
                 hit_charge = False
                 # check if field line ends in some charge
-                for C2 in temp_charges:
+                for C2 in charges:
                     if np.sqrt((r.y[0]-C2.pos[0])**2+(r.y[1]-C2.pos[1])**2) < R:
                         hit_charge = True
                 if hit_charge:
@@ -115,7 +109,7 @@ def onClick_efield():
         ax.plot(x, y, color="k", lw=0.8)
 
     # plot point charges
-    for C in temp_charges:
+    for C in charges:
         if C.q > 0:
             ax.plot(C.pos[0], C.pos[1], 'ro', ms=10 *
                     np.sqrt(C.q))  # ro -> red circle markers for charges
