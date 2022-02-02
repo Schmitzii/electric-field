@@ -40,7 +40,7 @@ def EFieldSingleCharge(charge, x, y):
     return q * (x - r0[0]) / (distance**3), q * (y - r0[1]) / (distance**3)
 
 
-def onClick_efield():
+def eField(density):
 
     # We create two linear arrays with 64 points in the range -2, 2
 
@@ -79,7 +79,7 @@ def onClick_efield():
     # Perform a plot of the vector arrows using streamplot
 
     splot.streamplot(x, y, Ex, Ey, color=color, linewidth=0.5,
-                     cmap=plt.cm.inferno, density=1.5, arrowstyle='->', arrowsize=1)
+                     cmap=plt.cm.inferno, density=density, arrowstyle='->', arrowsize=1)
 
     # Add circles for positive and negative charges
 

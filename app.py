@@ -3,7 +3,7 @@ import helpers as h
 import tkinter as tk
 
 # does not get imported automatically, so import it explicitly
-from tkinter import messagebox
+from tkinter import HORIZONTAL, messagebox
 from tkinter import simpledialog
 from tkinter import ttk
 
@@ -55,6 +55,7 @@ class App():
         """PLOT"""
         self.plot_f = tk.Frame(self.window_f)
         self.buttons_f = tk.Frame(self.plot_f)
+        self.sliders_f = tk.Frame(self.plot_f)
 
         # Buttons
         self.cursor_button = tk.Button(
@@ -69,7 +70,7 @@ class App():
             command=self.onClick_removeCharge,
         )
         self.efield_button = tk.Button(
-            self.buttons_f, text="Elektrisches Feld", width=c.BUTTON_WIDTH, command=h.onClick_efield
+            self.buttons_f, text="Elektrisches Feld", width=c.BUTTON_WIDTH, command=self.onClick_eField
         )
         self.cursor_button.grid(row=0, column=0)
         self.addcharge_button.grid(row=0, column=1)
@@ -84,8 +85,14 @@ class App():
         self.canvas.tag_bind(
             self.input_field, "<Button-1>", self.onClick_inputField)
 
+        # Sliders
+        self.density_slider = tk.Scale(
+            self.sliders_f, from_=0.0, to=2.0, digits=2, resolution=0.1, orient=HORIZONTAL, label="Feldliniendichte")
+        self.density_slider.grid(row=0, column=0)
+
         self.buttons_f.grid(column=0, row=0)
         self.canvas.grid(column=0, row=1)
+        self.sliders_f.grid(column=0, row=2)
 
         self.window_f.pack()
         self.plot_f.grid(row=0, column=0)
@@ -129,6 +136,9 @@ class App():
             self.remove_charge = True
             self.removecharge_button.config(relief=tk.SUNKEN)
             self.addcharge_button.config(relief=tk.RAISED)
+
+    def onClick_eField(self):
+        h.eField(density=self.density_slider.get())
 
     def onClick_inputField(self, event):
         x, y = event.x, event.y  # mouse click position
