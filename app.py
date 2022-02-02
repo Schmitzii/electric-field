@@ -88,6 +88,7 @@ class App():
         # Sliders
         self.density_slider = tk.Scale(
             self.sliders_f, from_=0.0, to=2.0, digits=2, resolution=0.1, orient=HORIZONTAL, label="Feldliniendichte")
+        self.density_slider.set(1.0)  # set Default Value of Slider
         self.density_slider.grid(row=0, column=0)
 
         self.buttons_f.grid(column=0, row=0)
