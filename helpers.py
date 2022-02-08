@@ -2,8 +2,6 @@ import tkinter as tk
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 import numpy as np
-import plotly.offline as py
-from scipy.integrate import ode as ode  # solve differential equations
 
 charges = []
 
@@ -17,80 +15,82 @@ charges = []
 
 class Charge:
     def __init__(self, q, pos, item, record):
-        self.q = q  # charge
-        self.pos = pos  # position
-        self.item = item  # item in canvas
-        self.record = record  # record in table
+        self.q = q  # Ladung
+        self.pos = pos  # Position
+        self.item = item  # Item in Canvas
+        self.record = record  # Eintrag in Tabelle
 
 
-def _create_circle(self, x, y, r, **kwargs):  # x=xCoordinate, y=yCoordinate, r=radius
+def _create_circle(self, x, y, r, **kwargs):  # x=xKoordinate, y=yKoordinate, r=Radius
     return self.create_oval(x-r, y-r, x+r, y+r, **kwargs)
 
 
 """CALCULATION ELECTRIC FIELD LINES"""
 
-# *formula to calculate electric field due to a single charge
-# *We know that E(r) \propto q * \vec{r}/r^3
+# Formel, um elektrisches Feld durch eine Ladung zu berechnen
 
 
 def EFieldSingleCharge(charge, x, y):
     q = charge.q
     r0 = charge.pos
+    # calculates hypotenuse (distance between charge and wanted position)
     distance = np.hypot(x - r0[0], y - r0[1])
     return q * (x - r0[0]) / (distance**3), q * (y - r0[1]) / (distance**3)
 
 
 def eField(density):
 
-    # We create two linear arrays with 64 points in the range -2, 2
-
-    nx = 128
-    ny = 128
+    # Arrays mit 256 Punkten von 0 bis 1
+    # je größer die Anzahl an Punkten, desto genauer die Berechnung
+    nx = 256
+    ny = 256
+    # teilt 0 - 1 in n Abschnitte ein (1/n, 2/n, 3/n...)
     x = np.linspace(0, 1, nx)
     y = np.linspace(0, 1, ny)
 
-    # And then we use meshgrid that creates an array of coordinates for X and Y
+    # Meshgrid verwenden, um Array aus Koordinaten für X und Y zu erstellen
 
     X, Y = np.meshgrid(x, y)
 
     # Initialize our field components to be zero
 
+    # Arrays mit der gewünschten Form gefüllt mit Nullen wiedergeben
     Ex = np.zeros((ny, nx))
     Ey = np.zeros((ny, nx))
 
-    # And iterate over charges. Since we apply superposition principle we can
-    # calculate the field created by each charge separatly and add up all fields in
-    # the field vectors
+    # Für jede Ladung eigenes elektrisches Feld berechnen und zu Ex und Ey addieren
 
     for charge in charges:
+        # Elektrisches Feld an jedem Punkt im Ausgabefeld für einzelne Ladung berechnen
         ex, ey = EFieldSingleCharge(charge, x=X, y=Y)
         Ex += ex
         Ey += ey
 
-    # Create a subplot
+    # subplot erstellen
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(8, 8))
     splot = fig.add_subplot(111)
 
-    # Color is determined by the magnitude of the field
+    # Farbe abhängig von der Stärke des elektrischen Feldes
 
-    color = np.log(np.hypot(Ex, Ey))
+    color = np.log(np.hypot(Ex**2, Ey**2))
 
-    # Perform a plot of the vector arrows using streamplot
+    # Mithilfe von streamplot Vektorfeld darstellen
 
-    splot.streamplot(x, y, Ex, Ey, color=color, linewidth=0.5,
-                     cmap=plt.cm.inferno, density=density, arrowstyle='->', arrowsize=1)
+    splot.streamplot(x, y, Ex, Ey, color=color, linewidth=1,
+                     cmap=plt.cm.plasma, density=density, arrowstyle='->', arrowsize=1)
 
-    # Add circles for positive and negative charges
+    # Kreise für positive und negative Ladungen hinzufügen
 
     qColors = {
         True: '#FF0000',
         False: '#0000FF'
     }
     for charge in charges:
-        splot.add_artist(Circle(charge.pos, 0.02, color=qColors[charge.q > 0]))
+        splot.add_artist(Circle(charge.pos, charge.q *
+                         0.01, color=qColors[charge.q > 0]))  # Kreisgröße variiert je nach Ladungsmenge, default value 0.02
 
-    # Set labels and areas
+    # labels und sichtbaren Bereich festsetzen
 
     splot.set_xlabel('x')
     splot.set_ylabel('y')
@@ -98,6 +98,5 @@ def eField(density):
     splot.set_ylim(0, 1)
     splot.set_aspect('equal')
 
-    # Done
-
+    # PLot anzeigen
     plt.show()

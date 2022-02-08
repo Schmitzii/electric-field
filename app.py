@@ -10,27 +10,21 @@ from tkinter import ttk
 # apply method to create circle to tk.Canvas
 tk.Canvas.create_circle = h._create_circle
 
-"""PROGRAM DOESNT WORK WHEN THERE ARE MORE POSITIVE THAN NEGATIVE CHARGES"""
-
 
 class App():
     def __init__(self, parent):
-        """VARIABLES"""
+        """VARIABLEN"""
         self.add_charge = False
         self.remove_charge = False
         self.counter = 0  # counts the number of charges
 
         """ROOT"""
         self.parent = parent
-        self.parent.geometry("1200x800")
+        self.parent.geometry("1200x800")  # Fenstergröße festsetzen
         self.parent.title("Visualisierung elektrischer Feldlinien")
 
-        self.parent.title(
-            "Visualisierung elektrischer Feldlinien")  # set title
-        self.parent.geometry("1200x800")  # set window size
-
-        """MENU"""
-        self.menubar = tk.Menu(self.parent)  # initialise menubar
+        """MENÜ"""
+        self.menubar = tk.Menu(self.parent)  # Menübar initialisieren
 
         self.optionsmenu = tk.Menu(self.menubar)
         self.optionsmenu.add_command(label="Einstellungen löschen")
@@ -50,7 +44,8 @@ class App():
         self.window_f = tk.LabelFrame(
             self.parent, text="Visualisierung elektrischer Feldlinien", padx=10, pady=10
         )
-        self.window_f.pack(padx=10, pady=10)  # add padding to inside of frame
+        # Padding zum Window Frame hinzufügen
+        self.window_f.pack(padx=10, pady=10)
 
         """PLOT"""
         self.plot_f = tk.Frame(self.window_f)
@@ -77,7 +72,7 @@ class App():
         self.removecharge_button.grid(row=0, column=2)
         self.efield_button.grid(row=0, column=3)
 
-        # Input Field
+        # Eingabefeld
         self.canvas = tk.Canvas(
             self.plot_f, width=c.PLOT_SIZE, height=c.PLOT_SIZE)
         self.input_field = self.canvas.create_rectangle(
@@ -88,7 +83,7 @@ class App():
         # Sliders
         self.density_slider = tk.Scale(
             self.sliders_f, from_=0.0, to=2.0, digits=2, resolution=0.1, orient=HORIZONTAL, label="Feldliniendichte")
-        self.density_slider.set(1.0)  # set Default Value of Slider
+        self.density_slider.set(2.0)  # set Default Value of Slider
         self.density_slider.grid(row=0, column=0)
 
         self.buttons_f.grid(column=0, row=0)
@@ -98,7 +93,7 @@ class App():
         self.window_f.pack()
         self.plot_f.grid(row=0, column=0)
 
-        """TABLE"""
+        """TABELLE"""
         self.table = ttk.Treeview(self.window_f, height=29)
         self.table['columns'] = ('position', 'charge')
 
@@ -114,7 +109,7 @@ class App():
 
         self.table.bind('<Double-Button-1>', self.select_item)
 
-    """BUTTON FUCTIONS"""
+    """BUTTON FUNKTIONEN"""
 
     def onClick_addCharge(self):
         self.remove_charge = False
@@ -142,7 +137,7 @@ class App():
         h.eField(density=self.density_slider.get())
 
     def onClick_inputField(self, event):
-        x, y = event.x, event.y  # mouse click position
+        x, y = event.x, event.y  # Mausklick-Position
 
         if self.add_charge:
             if len(h.charges) > 9:
@@ -155,37 +150,38 @@ class App():
                     x, y, c.DEFAULT_CIRCLE_RADIUS, fill="red")
                 coords = self.canvas.coords(q)
                 self.canvas.tag_bind(q, "<Button-1>", self.onClick_charge)
-                # add new charge to charges array by calculating center coordinates of circle
+                # Hinzufügen einer neuen Ladung zum Ladungsarray durch Berechnung der Mittelpunktskoordinaten des Kreises
                 h.charges.append(
                     h.Charge(
-                        1.0, [round((coords[0] + coords[2]) / 1200, 2),  # divided by 1200 because /2 because of average and /600 because of coordinate system
+                        1.0, [round((coords[0] + coords[2]) / 1200, 2),  # geteilt durch 1200 weil /2 wegen Durchschnitt und /600 wegen Koordinatensystem
                               round(1 - ((coords[1] + coords[3]) / 1200), 2)], q, None
                     )
                 )
                 record = self.table.insert(parent="", index="end", iid=self.counter, text="", values=(
-                    h.charges[-1].pos, h.charges[-1].q))  # [-1] takes the last element of an array
-                # add table record to object to be able to delete it
+                    h.charges[-1].pos, h.charges[-1].q))  # [-1] wählt letztes Element aus Liste aus
+                # Tabelleneintrag zum Objekt hinzufügen, um diesen löschen zu können
                 h.charges[-1].record = record
                 self.counter += 1
-                # print out object attributes
+                # Objekt-Attribute ausgeben
                 print(h.charges[-1].__dict__)
 
     def onClick_charge(self, event):
         global counter
-        x, y = event.x, event.y  # mouse click position
+        x, y = event.x, event.y  # Mausklick-Position
 
         q = event.widget.find_closest(x, y)
         if self.remove_charge:
             for charge in h.charges:
-                # check if charge in array has same coordinates as clicked charge
+                # prüfen, ob Ladung im Array dieselben Koordinaten wie die geklickte Ladung hat
                 if self.canvas.coords(charge.item) == self.canvas.coords(q):
                     self.canvas.delete(q)
                     h.charges.remove(charge)
                     self.table.delete(charge.record)
-        elif not self.remove_charge and not self.add_charge:  # select charge to change values
+        # Ladung auswählen, um Values zu ändern (muss noch erledigt werden)
+        elif not self.remove_charge and not self.add_charge:
             pass
 
-    def select_item(self, a):  # argument a not used but is necessary
+    def select_item(self, a):  # Argument a wird nicht benutzt, ist aber notwendig
         curItem = self.table.focus()
         values = self.table.item(curItem, 'values')
         user_inp = simpledialog.askfloat(
@@ -193,15 +189,16 @@ class App():
         if user_inp is not None:
             self.table.item(curItem, values=(values[0], user_inp))
             for charge in h.charges:
-                # check if record of charge equals focused record
+                # prüfen, ob Tabelleneintrag der Ladung gleich dem ausgewählten Tabelleneintrag ist
                 if curItem == charge.record:
                     charge.q = user_inp
-                    # change color based on mathematical operator (<0:blue, =0:grey, >0:red)
+                    # Farbe basierend auf mathematischen Operator ändern (<0:blue, =0:grey, >0:red)
                     self.canvas.itemconfig(charge.item, fill='blue') if user_inp < 0 else self.canvas.itemconfig(
                         charge.item, fill='grey') if user_inp == 0 else self.canvas.itemconfig(charge.item, fill='red')
+                    # PLATZHALTER, UM GRÖßE DES KREISES JE NACH LADUNG ZU ÄNDERN
                     # PLACEHOLDER FOR CHANGING SIZE OF OVAL WHEN CHARGE GETS BIGGER OR SMALLER
 
 
-root = tk.Tk()  # initialise root element
+root = tk.Tk()  # Root-Element initialisieren
 window = App(root)
 root.mainloop()
