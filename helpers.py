@@ -98,5 +98,7 @@ def eField(density):
     splot.set_ylim(0, 1)
     splot.set_aspect('equal')
 
+    # Plot als png mit transparentem Hintergrund speichern
+    plt.savefig("electric-field-output.png", transparent=True)
     # PLot anzeigen
     plt.show()
