@@ -67,6 +67,7 @@ class App():
         self.efield_button = tk.Button(
             self.buttons_f, text="Elektrisches Feld", width=c.BUTTON_WIDTH, command=self.onClick_eField
         )
+
         self.cursor_button.grid(row=0, column=0)
         self.addcharge_button.grid(row=0, column=1)
         self.removecharge_button.grid(row=0, column=2)
@@ -84,7 +85,12 @@ class App():
         self.density_slider = tk.Scale(
             self.sliders_f, from_=0.0, to=2.0, digits=2, resolution=0.1, orient=HORIZONTAL, label="Feldliniendichte")
         self.density_slider.set(2.0)  # set Default Value of Slider
+        self.thickness_slider = tk.Scale(
+            self.sliders_f, from_=0.0, to=2.0, digits=2, resolution=0.1, orient=HORIZONTAL, label="Feldliniendicke")
+        self.thickness_slider.set(1.0)  # set Default Value of Slider
+
         self.density_slider.grid(row=0, column=0)
+        self.thickness_slider.grid(row=0, column=1)
 
         self.buttons_f.grid(column=0, row=0)
         self.canvas.grid(column=0, row=1)
@@ -134,7 +140,8 @@ class App():
             self.addcharge_button.config(relief=tk.RAISED)
 
     def onClick_eField(self):
-        h.eField(density=self.density_slider.get())
+        h.eField(density=self.density_slider.get(),
+                 thickness=self.thickness_slider.get())
 
     def onClick_inputField(self, event):
         x, y = event.x, event.y  # Mausklick-Position

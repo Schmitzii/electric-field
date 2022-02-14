@@ -30,15 +30,15 @@ def _create_circle(self, x, y, r, **kwargs):  # x=xKoordinate, y=yKoordinate, r=
 # Formel, um elektrisches Feld durch eine Ladung zu berechnen
 
 
-def EFieldSingleCharge(charge, x, y):
+def eFieldSingleCharge(charge, x, y):
     q = charge.q
     r0 = charge.pos
-    # calculates hypotenuse (distance between charge and wanted position)
+    # berechnet Hypotenuse (Abstand Ladung und bestimmter Position)
     distance = np.hypot(x - r0[0], y - r0[1])
     return q * (x - r0[0]) / (distance**3), q * (y - r0[1]) / (distance**3)
 
 
-def eField(density):
+def eField(density, thickness):
 
     # Arrays mit 256 Punkten von 0 bis 1
     # je größer die Anzahl an Punkten, desto genauer die Berechnung
@@ -62,7 +62,7 @@ def eField(density):
 
     for charge in charges:
         # Elektrisches Feld an jedem Punkt im Ausgabefeld für einzelne Ladung berechnen
-        ex, ey = EFieldSingleCharge(charge, x=X, y=Y)
+        ex, ey = eFieldSingleCharge(charge, x=X, y=Y)
         Ex += ex
         Ey += ey
 
@@ -77,7 +77,7 @@ def eField(density):
 
     # Mithilfe von streamplot Vektorfeld darstellen
 
-    splot.streamplot(x, y, Ex, Ey, color=color, linewidth=1,
+    splot.streamplot(x, y, Ex, Ey, color=color, linewidth=thickness,
                      cmap=plt.cm.plasma, density=density, arrowstyle='->', arrowsize=1)
 
     # Kreise für positive und negative Ladungen hinzufügen
