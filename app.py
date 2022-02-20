@@ -2,12 +2,12 @@ import constants as c
 import helpers as h
 import tkinter as tk
 
-# does not get imported automatically, so import it explicitly
+# wird nicht automatisch importiert, also explizit importieren
 from tkinter import HORIZONTAL, messagebox
 from tkinter import simpledialog
 from tkinter import ttk
 
-# apply method to create circle to tk.Canvas
+# eigene Methode, um Kreis zu erstellen, da sonst Probleme mit Koordinaten auftreten
 tk.Canvas.create_circle = h._create_circle
 
 
@@ -16,7 +16,7 @@ class App():
         """VARIABLEN"""
         self.add_charge = False
         self.remove_charge = False
-        self.counter = 0  # counts the number of charges
+        self.counter = 0  # Anzahl an Ladungen
 
         """ROOT"""
         self.parent = parent
@@ -147,10 +147,10 @@ class App():
         x, y = event.x, event.y  # Mausklick-Position
 
         if self.add_charge:
-            if len(h.charges) > 9:
+            if len(h.charges) > 30:
                 messagebox.showerror(
                     title="Zu viele Ladungen",
-                    message="Es können maximal 10 Ladungen eingefügt werden.",
+                    message="Es können maximal 30 Ladungen eingefügt werden.",
                 )
             else:
                 q = self.canvas.create_circle(
@@ -202,8 +202,6 @@ class App():
                     # Farbe basierend auf mathematischen Operator ändern (<0:blue, =0:grey, >0:red)
                     self.canvas.itemconfig(charge.item, fill='blue') if user_inp < 0 else self.canvas.itemconfig(
                         charge.item, fill='grey') if user_inp == 0 else self.canvas.itemconfig(charge.item, fill='red')
-                    # PLATZHALTER, UM GRÖßE DES KREISES JE NACH LADUNG ZU ÄNDERN
-                    # PLACEHOLDER FOR CHANGING SIZE OF OVAL WHEN CHARGE GETS BIGGER OR SMALLER
 
 
 root = tk.Tk()  # Root-Element initialisieren

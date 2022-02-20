@@ -5,13 +5,6 @@ import numpy as np
 
 charges = []
 
-"""NOCH ERLEDIGEN:
--600 durch Konstante ersetzen
--generell neue Konstanten einführen
--Programm lesen und verstehen (besonders helpers.py)
--Auch Größe der Ladungen schon innerhalb des GUIs ändern, anstatt nur in matplotlib
-"""
-
 
 class Charge:
     def __init__(self, q, pos, item, record):
@@ -25,7 +18,7 @@ def _create_circle(self, x, y, r, **kwargs):  # x=xKoordinate, y=yKoordinate, r=
     return self.create_oval(x-r, y-r, x+r, y+r, **kwargs)
 
 
-"""CALCULATION ELECTRIC FIELD LINES"""
+"""BERECHNUNG ELEKTRISCHE FELDLINIEN"""
 
 # Formel, um elektrisches Feld durch eine Ladung zu berechnen
 
@@ -33,7 +26,7 @@ def _create_circle(self, x, y, r, **kwargs):  # x=xKoordinate, y=yKoordinate, r=
 def eFieldSingleCharge(charge, x, y):
     q = charge.q
     r0 = charge.pos
-    # berechnet Hypotenuse (Abstand Ladung und bestimmter Position)
+    # berechnet Hypotenuse (Abstand Ladung und bestimmte Position)
     distance = np.hypot(x - r0[0], y - r0[1])
     return q * (x - r0[0]) / (distance**3), q * (y - r0[1]) / (distance**3)
 
@@ -51,8 +44,6 @@ def eField(density, thickness):
     # Meshgrid verwenden, um Array aus Koordinaten für X und Y zu erstellen
 
     X, Y = np.meshgrid(x, y)
-
-    # Initialize our field components to be zero
 
     # Arrays mit der gewünschten Form gefüllt mit Nullen wiedergeben
     Ex = np.zeros((ny, nx))
@@ -76,7 +67,9 @@ def eField(density, thickness):
     color = np.log(np.hypot(Ex**2, Ey**2))
 
     # Mithilfe von streamplot Vektorfeld darstellen
-
+    np.set_printoptions(threshold=np.inf)
+    print(Ex)
+    print(Ey)
     splot.streamplot(x, y, Ex, Ey, color=color, linewidth=thickness,
                      cmap=plt.cm.plasma, density=density, arrowstyle='->', arrowsize=1)
 
